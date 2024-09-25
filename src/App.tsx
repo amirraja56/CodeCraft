@@ -1,5 +1,5 @@
 import './App.css'
-import Compiler from './components/Compiler'
+import Compiler from './Compiler'
 
 function App() {
 
