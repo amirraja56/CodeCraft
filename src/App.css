@@ -1,0 +1,198 @@
+:root {
+    --background: #1a202c;
+    --text: #e2e8f0;
+    --primary: #4299e1;
+    --secondary: #2d3748;
+    --accent: #ed8936;
+    --error: #f56565;
+    --success: #48bb78;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .button-primary {
+    background-color: var(--primary);
+    color: white;
+  }
+  
+  .button-primary:hover {
+    background-color: #3182ce;
+  }
+  
+  .button-secondary {
+    background-color: var(--secondary);
+    color: var(--text);
+  }
+  
+  .button-secondary:hover {
+    background-color: #4a5568;
+  }
+  
+  .split-view {
+    display: flex;
+    height: calc(100vh - 100px);
+    border: 1px solid var(--secondary);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .editor-pane, .output-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .editor-pane {
+    border-right: 1px solid var(--secondary);
+  }
+  
+  .tab-list {
+    display: flex;
+    background-color: var(--secondary);
+  }
+  
+  .tab {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--text);
+  }
+  
+  .tab.active {
+    background-color: var(--primary);
+    color: white;
+  }
+  
+  .editor {
+    flex: 1;
+    padding: 1rem;
+    background-color: #2d3748;
+    color: var(--text);
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    border: none;
+  }
+  
+  .output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary);
+  }
+  
+  .output-title {
+    font-weight: bold;
+    color: var(--success);
+  }
+  
+  .output-content {
+    flex: 1;
+    padding: 1rem;
+    background-color: white;
+    overflow: auto;
+  }
+  
+  .footer {
+    margin-top: 1rem;
+  }
+  
+  .saved-files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .saved-file {
+    padding: 0.25rem 0.5rem;
+    background-color: var(--secondary);
+    color: var(--text);
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  
+  .saved-file:hover {
+    background-color: var(--primary);
+  }
+  
+  /* Gutter style */
+  .gutter {
+    background-color: var(--secondary);
+    background-repeat: no-repeat;
+    background-position: 50%;
+  }
+  
+  .gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+    cursor: col-resize;
+  }
+  
+  /* Accessibility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .split-view {
+      flex-direction: column;
+    }
+  
+    .editor-pane, .output-pane {
+      height: 50%;
+    }
+  
+    .editor-pane {
+      border-right: none;
+      border-bottom: 1px solid var(--secondary);
+    }
+  }
