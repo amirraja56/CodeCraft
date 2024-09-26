@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Split from 'react-split'
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -51,6 +51,7 @@ export default function Component() {
   const [outputFontSize, setOutputFontSize] = useState(14)
   const [savedFiles, setSavedFiles] = useState<string[]>([])
   const [displayMode, setDisplayMode] = useState('code')
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
     const savedFilesFromStorage = localStorage.getItem('savedFiles')
@@ -59,11 +60,18 @@ export default function Component() {
     }
   }, [])
 
+  useEffect(() => {
+    runCode()
+  }, [outputFontSize])
+
   const runCode = () => {
     const combinedCode = `
       <html>
         <head>
-          <style>${code.css}</style>
+          <style>
+            ${code.css}
+            body { font-size: ${outputFontSize}px; }
+          </style>
         </head>
         <body>
           ${code.html}
@@ -72,6 +80,13 @@ export default function Component() {
       </html>
     `
     setOutput(combinedCode)
+
+    if (iframeRef.current) {
+      const iframeDocument = iframeRef.current.contentDocument
+      if (iframeDocument) {
+        iframeDocument.body.style.fontSize = `${outputFontSize}px`
+      }
+    }
   }
 
   const handleCodeChange = (language: string, value: string) => {
@@ -90,16 +105,16 @@ export default function Component() {
     })
   }
 
-  const createNewHTML = () => {
-    if (code.html.trim() !== defaultHTML) {
-      const confirmClear = window.confirm("Are you sure you want to reset the HTML to the default boilerplate? This action cannot be undone.")
-      if (!confirmClear) return
+  const resetAllCode = () => {
+    if (code.html !== defaultHTML || code.css !== defaultCSS || code.js !== defaultJS) {
+      const confirmReset = window.confirm("Are you sure you want to reset all code (HTML, CSS, and JavaScript) to the default? This action cannot be undone.")
+      if (!confirmReset) return
     }
-    setCode(prevCode => ({ ...prevCode, html: defaultHTML }))
+    setCode({ html: defaultHTML, css: defaultCSS, js: defaultJS })
     setActiveTab('html')
     toast({
-      title: "HTML reset to default",
-      description: "The HTML editor has been reset to the default boilerplate.",
+      title: "All code reset to default",
+      description: "HTML, CSS, and JavaScript have been reset to their default states.",
     })
   }
 
@@ -178,21 +193,21 @@ export default function Component() {
             <SelectTrigger className="w-[180px] bg-purple-600 hover:bg-purple-700 text-white">
               <SelectValue placeholder="Select display" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className='bg-purple-600'>
               <SelectItem value="code">Code Display</SelectItem>
               <SelectItem value="output">Output Display</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon" className="rounded bg-indigo-600 hover:bg-indigo-700 text-white" onClick={increaseFontSize}>
+          <Button variant="outline" size="icon" className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={increaseFontSize}>
             <ZoomInIcon className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="rounded bg-indigo-600 hover:bg-indigo-700 text-white" onClick={decreaseFontSize}>
+          <Button variant="outline" size="icon" className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={decreaseFontSize}>
             <ZoomOutIcon className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="rounded bg-yellow-600 hover:bg-yellow-700 text-white" onClick={downloadCode}>
+          <Button variant="outline" size="icon" className="bg-yellow-600 hover:bg-yellow-700 text-white" onClick={downloadCode}>
             <DownloadIcon className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="rounded bg-purple-600 hover:bg-purple-700 text-white">
+          <Button variant="outline" size="icon" className="bg-purple-600 hover:bg-purple-700 text-white">
             <SettingsIcon className="h-4 w-4" />
           </Button>
         </div>
@@ -211,10 +226,10 @@ export default function Component() {
       >
         <div className="flex flex-col">
           <Tabs defaultValue="html" className="w-full" onValueChange={(value) => setActiveTab(value)}>
-            <TabsList className="grid w-full grid-cols-3 bg-gray-800 rounded">
-              <TabsTrigger value="html" className="data-[state=active]:bg-blue-600 rounded">HTML</TabsTrigger>
-              <TabsTrigger value="css" className="data-[state=active]:bg-green-600 rounded">CSS</TabsTrigger>
-              <TabsTrigger value="js" className="data-[state=active]:bg-yellow-600 rounded">JavaScript</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 bg-gray-800">
+              <TabsTrigger value="html" className="data-[state=active]:bg-blue-600">HTML</TabsTrigger>
+              <TabsTrigger value="css" className="data-[state=active]:bg-green-600">CSS</TabsTrigger>
+              <TabsTrigger value="js" className="data-[state=active]:bg-yellow-600">JavaScript</TabsTrigger>
             </TabsList>
             <TabsContent value="html">
               <Textarea 
@@ -245,11 +260,11 @@ export default function Component() {
             </TabsContent>
           </Tabs>
           <div className="flex justify-between mt-2">
-            <Button onClick={createNewHTML} className="rounded bg-red-600 hover:bg-red-700">
+            <Button onClick={resetAllCode} className="bg-red-600 hover:bg-red-700">
               <FileIcon className="h-4 w-4 mr-2" />
-              Reset HTML
+              Reset All
             </Button>
-            <Button onClick={saveFile} className="rounded bg-blue-600 hover:bg-blue-700">
+            <Button onClick={saveFile} className="bg-blue-600 hover:bg-blue-700">
               <SaveIcon className="h-4 w-4 mr-2" />
               Save
             </Button>
@@ -259,23 +274,24 @@ export default function Component() {
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-semibold text-green-400">Output</h2>
             <div className="flex space-x-2">
-              <Button onClick={copyCode} className="rounded bg-blue-600 hover:bg-blue-700">
+              <Button onClick={copyCode} className="bg-blue-600 hover:bg-blue-700">
                 {copied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
                 {copied ? 'Copied!' : 'Copy'}
               </Button>
-              <Button onClick={runCode} className="rounded bg-green-600 hover:bg-green-700">
+              <Button onClick={runCode} className="bg-green-600 hover:bg-green-700">
                 <PlayIcon className="h-4 w-4 mr-2" />
                 Run
               </Button>
             </div>
           </div>
           <iframe
+            ref={iframeRef}
             className="flex-grow bg-white rounded"
             srcDoc={output}
             title="Output"
             sandbox="allow-scripts"
             width="100%"
-            style={{ minHeight: '300px', fontSize: `${outputFontSize}px` }}
+            style={{ minHeight: '300px' }}
           />
         </div>
       </Split>
